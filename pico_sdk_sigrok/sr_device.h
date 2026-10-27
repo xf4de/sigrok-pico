@@ -27,7 +27,7 @@
 // Note: In the wireless versions, GPIO23-25 control the wifi chip, 23 and 24
 // aren't available in the PICO, and 25 controls the LED. So while the LED is
 // lost, there is no change in available channels for sampling.
-#define PICO_MODE 2 // 0 is baseline, 1 is digital 26, 2 is digital 32
+#define PICO_MODE 0 // 0 is baseline, 1 is digital 26, 2 is digital 32
 // WARNING: USE PIN_TEST_MODE with extreme caution!!!!
 // If set, treat the inputs (A&D) to be outputs so that the device can drive
 // values for turn-on testing.  Enabling this allows all modes to be tested
