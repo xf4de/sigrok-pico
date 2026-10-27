@@ -19,6 +19,8 @@
 
 #include "sr_device.h"
 
+#define TRIG_EN 1
+
 // forced_test_mode is a special mode that puts the device into an active
 // sampling state out of reset.  It is used for a quick way to debug features
 // without needed pulseview or sigrok-cli to initiate a transfer. The enable
@@ -760,6 +762,11 @@ void core1_entry() {
 } // core1_entry
 
 #endif // PIN_TEST_MODE
+
+// LOCAL MOD: capture waits for this pin to be high. Don't enable its
+// channel (D22) in PulseView.
+#define TRIG_PIN 22
+
 int main() {
   int delay = 100;
   stdio_usb_init();
@@ -943,6 +950,9 @@ int main() {
       gpio_disable_pulls(pin);
     }
   }
+#if TRIG_EN
+  gpio_pull_up(TRIG_PIN); // LOCAL MOD: unconnected trigger pin = start at once
+#endif
 
 // Core1 for PIN_TEST_MODE is called at the end so that gpio inits are done
 // after all of the other previous ones that define them as inputs only.
@@ -1372,6 +1382,15 @@ int main() {
         dma_hw->ints0 = dma_hw->ints0;
         irq_set_enabled(DMA_IRQ_0, true);
         irq_set_exclusive_handler(DMA_IRQ_0, dma_int_handler);
+
+#if TRIG_EN
+        // LOCAL MOD: start trigger. The CPU waits right
+        // before ADC and PIO are started together.
+        // Jitter ~0.1-0.2 us (rarely a few us).
+        while (!gpio_get(TRIG_PIN) && !tud_cdc_available()) {
+          tight_loop_contents();
+        }
+#endif
 
 #ifdef BASE_MODE
         adc_run(true); // enable free run sample mode
