@@ -32,6 +32,14 @@ add_executable(pico_sdk_sigrok
   sr_device.c
 )
 
+target_compile_definitions(pico_sdk_sigrok PRIVATE SYS_CLK_MHZ=200)
+if (PICO_PLATFORM MATCHES "rp2350")
+  target_compile_definitions(pico_sdk_sigrok PRIVATE
+    PLL_SYS_VCO_FREQ_HZ=1200000000
+    PLL_SYS_POSTDIV1=6
+    PLL_SYS_POSTDIV2=1)
+endif()
+
 pico_enable_stdio_usb(pico_sdk_sigrok 1)
 pico_enable_stdio_uart(pico_sdk_sigrok 0)
 

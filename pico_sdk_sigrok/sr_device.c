@@ -134,7 +134,7 @@ int process_char(sr_device_t *d, char charin) {
     case 'R':
       tmpint = atol(&(d->cmdstr[1]));
       if ((tmpint >= 5000) &&
-          (tmpint <= 120000016)) { // Add 16 to support cfg_bits
+          (tmpint <= 200000016)) { // Add 16 to support cfg_bits
         d->sample_rate = tmpint;
         // Dprintf("SMPRATE= %u\n\r",d->sample_rate);
         ret = 1;
