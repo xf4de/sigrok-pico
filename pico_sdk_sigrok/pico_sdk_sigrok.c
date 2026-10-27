@@ -1021,6 +1021,19 @@ int main() {
           d_nibbles ? dig_samples_per_chunk : (chunk_size * 2) / (a_nibbles);
       // total chunks in entire buffer-round to 2 since we split it in half
       uint32_t buff_chunks = (DMA_BUF_SIZE / chunk_size) & 0xFFFFFFFE;
+
+      // LOCAL MOD: above 20 MS/s USB streaming can't keep up, so instead of
+      // overflowing and aborting after half a buffer, clamp the request to
+      // what fits in RAM (minus 4 chunks so the single-shot path is used).
+      if ((dev.cont == false) && (dev.sample_rate > 20000000)) {
+        uint32_t max_samples = (buff_chunks - 4) * chunk_samples;
+        if (dev.num_samples > max_samples) {
+          Dprintf("Clamping samples %u to %u\n\r", dev.num_samples,
+                  max_samples);
+          dev.num_samples = max_samples;
+        }
+      }
+
       // round up and force power of two since we cut it in half
       uint32_t chunks_needed =
           ((dev.num_samples / chunk_samples) + 2) & 0xFFFFFFFE;
