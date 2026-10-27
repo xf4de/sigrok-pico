@@ -936,6 +936,14 @@ int main() {
 
   gpio_init_mask(GPIO_D_MASK); // set as GPIO_FUNC_SIO and clear output enable
   gpio_set_dir_masked(GPIO_D_MASK, 0); // Set all to input
+  
+  // LOCAL MOD: disable the default pull-downs on all digital inputs
+  for (uint pin = 0; pin < 32; pin++) {
+    if (GPIO_D_MASK & (1u << pin)) {
+      gpio_disable_pulls(pin);
+    }
+  }
+
 // Core1 for PIN_TEST_MODE is called at the end so that gpio inits are done
 // after all of the other previous ones that define them as inputs only.
 // It also helps above Dprintf/UART conflicts between the two cores
